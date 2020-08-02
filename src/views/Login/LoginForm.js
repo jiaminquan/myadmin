@@ -1,16 +1,17 @@
 import React, { Component, Fragment } from "react";
+import {withRouter} from 'react-router-dom';
 import { Form, Input, Button, Row, Col, message } from 'antd';
 import { UserOutlined, LockOutlined, BarcodeOutlined } from '@ant-design/icons';
 import { Login, GetCode } from "../../api/account";
-
+import {setToken} from "../../utils/session";
 class LoginForm extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       username: '',
       code_button_loading: false,
       code_button_disabled: false,
-      code_button_text: "获取验证码"
+      code_button_text: "获取验证码",
     };
   }
   //登录
@@ -22,6 +23,10 @@ class LoginForm extends Component {
     }
     Login(loginData).then(response => {
       console.log(response)
+      const data = response.data.data
+      setToken(data.token)
+      //路由跳转
+      this.props.history.push('/index')
       message.success('登陆成功', 1);
     }).catch(error => {
       message.error('登陆失败', 1);
@@ -43,7 +48,7 @@ class LoginForm extends Component {
       module: "login"
     }
     GetCode(requestData).then(response => {
-      message.success('验证码已发送', 1);
+      message.success(response.data.message, 5);
       this.countDown()
     }).catch(error => {
       this.setState({
@@ -160,4 +165,4 @@ render() {
 }
 }
 
-export default LoginForm;
+export default withRouter (LoginForm);
